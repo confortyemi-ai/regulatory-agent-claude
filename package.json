@@ -1,0 +1,16 @@
+{
+  "name": "regulatory-agent-claude",
+  "version": "1.0.0",
+  "description": "AI-powered pharmaceutical regulatory compliance agent",
+  "main": "index.js",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.28.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "keywords": ["pharma", "compliance", "ai", "claude"],
+  "author": "",
+  "license": "MIT"
+}
