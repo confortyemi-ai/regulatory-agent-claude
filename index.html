@@ -581,7 +581,7 @@
         </div>
     </div>
 
-    <div id="pdfExportRoot" style="position: absolute; left: -10000px; top: 0; width: 780px; background: #ffffff;"></div>
+    <div id="pdfExportRoot" style="display: none; position: fixed; inset: 0; z-index: 9999; background: #ffffff; overflow: auto;"></div>
 
     <script>
         document.getElementById('generateBtn').addEventListener('click', generateCompliance);
@@ -739,6 +739,8 @@ Provide a professional, detailed analysis suitable for executive review.`;
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
 
+            const root = document.getElementById('pdfExportRoot');
+
             try {
                 const { productName, therapeuticAreaLabel, markets, analysis, generatedAt } = lastAnalysisData;
                 const dateStr = generatedAt.toLocaleDateString('en-US', {
@@ -748,9 +750,8 @@ Provide a professional, detailed analysis suitable for executive review.`;
                     ? marked.parse(analysis)
                     : `<pre style="white-space:pre-wrap;">${escapeHtml(analysis)}</pre>`;
 
-                const root = document.getElementById('pdfExportRoot');
                 root.innerHTML = `
-                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 36px; color: #2C2C2A;">
+                    <div style="max-width: 780px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 36px; color: #2C2C2A; background: #ffffff;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid #185FA5; padding-bottom: 14px; margin-bottom: 22px;">
                             <div>
                                 <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#1D9E75; font-weight:700;">AI-Powered Compliance</div>
@@ -789,6 +790,13 @@ Provide a professional, detailed analysis suitable for executive review.`;
 
                 const filenameSafe = productName.trim().replace(/[^a-z0-9]+/gi, '-').replace(/(^-+|-+$)/g, '') || 'Product';
 
+                // Briefly show the export template as an on-screen overlay so html2canvas
+                // captures it at real (positive) document coordinates -- off-screen/negative
+                // positioning is unreliable for canvas capture.
+                root.style.display = 'block';
+                root.scrollTop = 0;
+                await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
                 await html2pdf().set({
                     margin: [10, 10, 14, 10],
                     filename: `Regulatory-Compliance-${filenameSafe}.pdf`,
@@ -798,9 +806,12 @@ Provide a professional, detailed analysis suitable for executive review.`;
                     pagebreak: { mode: ['css', 'legacy'] }
                 }).from(root).save();
 
+                root.style.display = 'none';
                 root.innerHTML = '';
             } catch (err) {
                 showError('PDF export failed: ' + err.message);
+                root.style.display = 'none';
+                root.innerHTML = '';
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = originalHTML;
