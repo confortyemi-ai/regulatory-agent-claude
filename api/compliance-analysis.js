@@ -21,7 +21,20 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { prompt, productName, therapeuticArea, markets } = req.body;
+        const { prompt, productName, therapeuticArea, markets, code } = req.body;
+
+        // Access control: same rules as /api/verify-access, enforced again here
+        // so that disabling access (ACCESS_ENABLED=false) blocks generation
+        // immediately, even for a browser tab that unlocked earlier.
+        const expectedCode = process.env.ACCESS_CODE;
+        if (expectedCode) {
+            if (process.env.ACCESS_ENABLED === 'false') {
+                return res.status(403).json({ error: 'access_disabled' });
+            }
+            if (code !== expectedCode) {
+                return res.status(403).json({ error: 'invalid_code' });
+            }
+        }
 
         if (!prompt) {
             return res.status(400).json({ error: 'Missing prompt' });
