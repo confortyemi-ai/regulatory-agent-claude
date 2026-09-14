@@ -751,7 +751,7 @@ Provide a professional, detailed analysis suitable for executive review.`;
                     : `<pre style="white-space:pre-wrap;">${escapeHtml(analysis)}</pre>`;
 
                 root.innerHTML = `
-                    <div style="max-width: 780px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 36px; color: #2C2C2A; background: #ffffff;">
+                    <div id="pdfFicheContent" style="max-width: 780px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 36px; color: #2C2C2A; background: #ffffff;">
                         <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid #185FA5; padding-bottom: 14px; margin-bottom: 22px;">
                             <div>
                                 <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#1D9E75; font-weight:700;">AI-Powered Compliance</div>
@@ -792,10 +792,15 @@ Provide a professional, detailed analysis suitable for executive review.`;
 
                 // Briefly show the export template as an on-screen overlay so html2canvas
                 // captures it at real (positive) document coordinates -- off-screen/negative
-                // positioning is unreliable for canvas capture.
+                // positioning is unreliable for canvas capture. The overlay itself
+                // (#pdfExportRoot) is viewport-clamped (position:fixed; inset:0; overflow:auto),
+                // so its own box is capped to the viewport height -- we must capture the inner
+                // content element (#pdfFicheContent), whose height reflects its actual content.
                 root.style.display = 'block';
                 root.scrollTop = 0;
                 await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+                const contentEl = document.getElementById('pdfFicheContent');
 
                 await html2pdf().set({
                     margin: [10, 10, 14, 10],
@@ -804,7 +809,7 @@ Provide a professional, detailed analysis suitable for executive review.`;
                     html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                     pagebreak: { mode: ['css', 'legacy'] }
-                }).from(root).save();
+                }).from(contentEl).save();
 
                 root.style.display = 'none';
                 root.innerHTML = '';
