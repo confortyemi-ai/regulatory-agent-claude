@@ -2,6 +2,5 @@
   "buildCommand": "npm install",
   "devCommand": "vercel dev",
   "installCommand": "npm install",
-  "framework": null,
-  "public": true
+  "framework": null
 }
