@@ -6,6 +6,7 @@
     <title>Regulatory Compliance Agent | AI-Powered</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.14.0/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -364,6 +365,56 @@
             background: rgba(0, 0, 0, 0.015);
         }
 
+        .content-text h2,
+        .content-text h3,
+        .content-text h4,
+        .content-text table,
+        .content-text tr,
+        .content-text li {
+            page-break-inside: avoid;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-header .results-title {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .btn-export-pdf {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.1rem;
+            font-size: 13px;
+            font-weight: 600;
+            background: var(--surface-1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-export-pdf:hover:not(:disabled) {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-export-pdf:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .empty-state {
             text-align: center;
             padding: 3rem 1rem;
@@ -502,7 +553,13 @@
         </div>
 
         <div class="results-container" id="resultsContainer">
-            <h2 class="results-title">AI-Powered Compliance Analysis</h2>
+            <div class="results-header">
+                <h2 class="results-title">AI-Powered Compliance Analysis</h2>
+                <button class="btn-export-pdf" id="exportPdfBtn">
+                    <i class="fas fa-file-pdf"></i>
+                    Export as PDF
+                </button>
+            </div>
 
             <div class="section-card">
                 <h3 class="section-title">Comprehensive Regulatory Assessment</h3>
@@ -524,8 +581,13 @@
         </div>
     </div>
 
+    <div id="pdfExportRoot" style="position: fixed; left: -10000px; top: 0; width: 780px; background: #ffffff;"></div>
+
     <script>
         document.getElementById('generateBtn').addEventListener('click', generateCompliance);
+        document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
+
+        let lastAnalysisData = null;
 
         async function generateCompliance() {
             const productName = document.getElementById('productName').value.trim();
@@ -555,6 +617,7 @@
             document.getElementById('generateBtn').disabled = true;
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('resultsContainer').classList.add('active');
+            document.getElementById('exportPdfBtn').style.display = 'none';
 
             // Show loading
             document.getElementById('analysisContainer').innerHTML = `
@@ -643,7 +706,105 @@ Provide a professional, detailed analysis suitable for executive review.`;
                 analysisEl.textContent = data.analysis;
                 analysisEl.style.whiteSpace = 'pre-wrap';
             }
+
+            lastAnalysisData = {
+                productName: productName,
+                therapeuticArea: therapeuticArea,
+                therapeuticAreaLabel: document.getElementById('therapeuticArea').selectedOptions[0]
+                    ? document.getElementById('therapeuticArea').selectedOptions[0].text
+                    : therapeuticArea,
+                markets: markets,
+                analysis: data.analysis,
+                generatedAt: new Date()
+            };
+            document.getElementById('exportPdfBtn').style.display = 'inline-flex';
+
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        async function exportToPDF() {
+            if (!lastAnalysisData || !window.html2pdf) {
+                showError('PDF export is not available right now. Please try again in a moment.');
+                return;
+            }
+
+            const btn = document.getElementById('exportPdfBtn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
+
+            try {
+                const { productName, therapeuticAreaLabel, markets, analysis, generatedAt } = lastAnalysisData;
+                const dateStr = generatedAt.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'long', day: 'numeric'
+                });
+                const analysisHtml = window.marked
+                    ? marked.parse(analysis)
+                    : `<pre style="white-space:pre-wrap;">${escapeHtml(analysis)}</pre>`;
+
+                const root = document.getElementById('pdfExportRoot');
+                root.innerHTML = `
+                    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; padding: 36px; color: #2C2C2A;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom: 3px solid #185FA5; padding-bottom: 14px; margin-bottom: 22px;">
+                            <div>
+                                <div style="font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#1D9E75; font-weight:700;">AI-Powered Compliance</div>
+                                <div style="font-size:21px; font-weight:700; color:#185FA5; margin-top:4px;">Regulatory Compliance Agent</div>
+                            </div>
+                            <div style="text-align:right; font-size:11px; color:#5F5E5A; line-height:1.5;">
+                                Generated ${dateStr}<br>Powered by Claude AI
+                            </div>
+                        </div>
+
+                        <h1 style="font-size:19px; margin-bottom: 16px;">Regulatory Compliance Fiche — ${escapeHtml(productName)}</h1>
+
+                        <table style="width:100%; border-collapse:collapse; margin-bottom:22px; font-size:12.5px;">
+                            <tr>
+                                <td style="padding:8px 12px; background:#F1EFE8; font-weight:600; width:170px; border:1px solid #D3D1C7;">Product Name</td>
+                                <td style="padding:8px 12px; border:1px solid #D3D1C7;">${escapeHtml(productName)}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px 12px; background:#F1EFE8; font-weight:600; border:1px solid #D3D1C7;">Therapeutic Area</td>
+                                <td style="padding:8px 12px; border:1px solid #D3D1C7;">${escapeHtml(therapeuticAreaLabel)}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:8px 12px; background:#F1EFE8; font-weight:600; border:1px solid #D3D1C7;">Target Markets</td>
+                                <td style="padding:8px 12px; border:1px solid #D3D1C7;">${escapeHtml(markets.join(', '))}</td>
+                            </tr>
+                        </table>
+
+                        <div class="content-text">${analysisHtml}</div>
+
+                        <div style="margin-top:28px; padding-top:14px; border-top:1px solid #D3D1C7; font-size:10px; color:#888780; text-align:center;">
+                            This document was generated by an AI system and is intended for informational purposes only.
+                            It does not constitute legal or regulatory advice. Confirm all requirements with the relevant regulatory authorities.
+                        </div>
+                    </div>
+                `;
+
+                const filenameSafe = productName.trim().replace(/[^a-z0-9]+/gi, '-').replace(/(^-+|-+$)/g, '') || 'Product';
+
+                await html2pdf().set({
+                    margin: [10, 10, 14, 10],
+                    filename: `Regulatory-Compliance-${filenameSafe}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'] }
+                }).from(root).save();
+
+                root.innerHTML = '';
+            } catch (err) {
+                showError('PDF export failed: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
         }
 
         function showError(message) {
