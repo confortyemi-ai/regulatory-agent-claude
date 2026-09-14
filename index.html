@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regulatory Compliance Agent | AI-Powered</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #185FA5;
+            --accent: #1D9E75;
+            --danger: #E24B4A;
+            --warning: #BA7517;
+            --surface-0: #F1EFE8;
+            --surface-1: #FFFFFF;
+            --text-primary: #2C2C2A;
+            --text-secondary: #5F5E5A;
+            --text-muted: #888780;
+            --border: #D3D1C7;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #F1EFE8 0%, #FFFFFF 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .form-card {
+            background: var(--surface-1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            font-size: 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--surface-0);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 400;
+            cursor: pointer;
+        }
+
+        .btn-generate {
+            width: 100%;
+            padding: 1rem;
+            font-size: 15px;
+            font-weight: 600;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .btn-generate:hover:not(:disabled) {
+            background: #0C447C;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24, 95, 165, 0.2);
+        }
+
+        .btn-generate:disabled {
+            background: #888780;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            margin-top: 2rem;
+            color: var(--text-primary);
+        }
+
+        .overview-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--surface-0);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+
+        .card-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .section-card {
+            background: var(--surface-1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .ai-generated {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .content-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .loading {
+            display: inline-block;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid var(--surface-0);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            display: none;
+            background: #FCEBEB;
+            border: 1px solid #F7C1C1;
+            color: var(--danger);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .form-card,
+            .section-card {
+                padding: 1.5rem;
+            }
+
+            .overview-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-badge">🤖 AI-Powered Compliance</div>
+            <h1>Regulatory Compliance Agent</h1>
+            <p class="subtitle">Real-time pharmaceutical regulatory compliance analysis powered by Claude AI</p>
+        </div>
+
+        <div class="form-card">
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" placeholder="e.g., Cardiac Enzyme Inhibitor XL" />
+            </div>
+
+            <div class="form-group">
+                <label for="therapeuticArea">Therapeutic Area</label>
+                <select id="therapeuticArea">
+                    <option value="">Select therapeutic area...</option>
+                    <option value="oncology">Oncology</option>
+                    <option value="cardiovascular">Cardiovascular</option>
+                    <option value="infectious-disease">Infectious Disease</option>
+                    <option value="immunology">Immunology</option>
+                    <option value="neurology">Neurology</option>
+                    <option value="respiratory">Respiratory</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Target Markets</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="fda" value="FDA" />
+                        <label for="fda">FDA (USA)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="ema" value="EMA" />
+                        <label for="ema">EMA (EU)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="nafdac" value="NAFDAC" />
+                        <label for="nafdac">NAFDAC (Nigeria)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="who" value="WHO" />
+                        <label for="who">WHO Prequalification</label>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-generate" id="generateBtn">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                Generate Compliance Analysis
+            </button>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <h2 class="results-title">AI-Powered Compliance Analysis</h2>
+
+            <div class="section-card">
+                <h3 class="section-title">Comprehensive Regulatory Assessment</h3>
+                <div id="analysisContainer" class="content-text"></div>
+                <div class="ai-generated">
+                    <span class="ai-badge">Generated by Claude AI</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">📋</div>
+            <p>Enter product details and click "Generate Compliance Analysis" for real-time AI assessment</p>
+        </div>
+
+        <div class="footer">
+            <p>Regulatory Compliance Agent v2.0 | Powered by Claude AI</p>
+            <p style="margin-top: 0.5rem; font-size: 12px;">Real-time pharmaceutical regulatory intelligence</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('generateBtn').addEventListener('click', generateCompliance);
+
+        async function generateCompliance() {
+            const productName = document.getElementById('productName').value.trim();
+            const therapeuticArea = document.getElementById('therapeuticArea').value;
+
+            if (!productName) {
+                showError('Please enter a product name');
+                return;
+            }
+
+            if (!therapeuticArea) {
+                showError('Please select a therapeutic area');
+                return;
+            }
+
+            const selectedMarkets = [];
+            if (document.getElementById('fda').checked) selectedMarkets.push('FDA');
+            if (document.getElementById('ema').checked) selectedMarkets.push('EMA');
+            if (document.getElementById('nafdac').checked) selectedMarkets.push('NAFDAC');
+            if (document.getElementById('who').checked) selectedMarkets.push('WHO');
+
+            if (selectedMarkets.length === 0) {
+                selectedMarkets.push('FDA', 'NAFDAC');
+            }
+
+            clearError();
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsContainer').classList.add('active');
+
+            // Show loading
+            document.getElementById('analysisContainer').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Claude is analyzing regulatory requirements...</p>
+                </div>
+            `;
+
+            try {
+                await analyzeWithClaude(productName, therapeuticArea, selectedMarkets);
+            } catch (error) {
+                showError('Error: ' + error.message);
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('resultsContainer').classList.remove('active');
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+            }
+        }
+
+        async function analyzeWithClaude(productName, therapeuticArea, markets) {
+            const prompt = `You are a regulatory compliance expert for pharmaceutical products. Analyze the following product for regulatory compliance requirements:
+
+Product Name: ${productName}
+Therapeutic Area: ${therapeuticArea}
+Target Markets: ${markets.join(', ')}
+
+Provide a comprehensive regulatory compliance analysis that includes:
+
+1. REGULATORY REQUIREMENTS CHECKLIST
+   - List all critical documents and data required
+   - Specify which are mandatory vs recommended for each market
+   - Note market-specific variations
+
+2. RISK ASSESSMENT
+   - Identify high-priority compliance risks
+   - Rate by severity (High/Medium/Low)
+   - Suggest mitigation strategies
+
+3. TIMELINE AND MILESTONES
+   - Estimated approval timeline for each market
+   - Key development milestones
+   - Critical decision points
+
+4. MARKET-SPECIFIC CONSIDERATIONS
+   - FDA requirements (if applicable)
+   - EMA requirements (if applicable)
+   - NAFDAC requirements (if applicable)
+   - WHO prequalification (if applicable)
+
+5. RECOMMENDED NEXT STEPS
+   - Immediate actions
+   - Resource requirements
+   - Strategic recommendations
+
+Provide a professional, detailed analysis suitable for executive review.`;
+
+            const response = await fetch('/api/compliance-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    productName: productName,
+                    therapeuticArea: therapeuticArea,
+                    markets: markets
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            document.getElementById('analysisContainer').textContent = data.analysis;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+        }
+
+        function clearError() {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.classList.remove('show');
+        }
+    </script>
+</body>
+  </html>
