@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regulatory Compliance Agent | AI-Powered</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -253,8 +254,114 @@
             font-size: 15px;
             line-height: 1.8;
             color: var(--text-primary);
-            white-space: pre-wrap;
             word-wrap: break-word;
+        }
+
+        .content-text h1,
+        .content-text h2,
+        .content-text h3,
+        .content-text h4 {
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.35;
+            margin-top: 1.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .content-text h1:first-child,
+        .content-text h2:first-child,
+        .content-text h3:first-child,
+        .content-text h4:first-child {
+            margin-top: 0;
+        }
+
+        .content-text h1 { font-size: 22px; }
+
+        .content-text h2 {
+            font-size: 18px;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .content-text h3 {
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        .content-text h4 {
+            font-size: 15px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            font-size: 13px;
+        }
+
+        .content-text p {
+            margin-bottom: 1rem;
+        }
+
+        .content-text ul,
+        .content-text ol {
+            margin: 0 0 1rem 1.4rem;
+        }
+
+        .content-text li {
+            margin-bottom: 0.4rem;
+        }
+
+        .content-text li > ul,
+        .content-text li > ol {
+            margin-top: 0.4rem;
+        }
+
+        .content-text strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .content-text a {
+            color: var(--primary);
+        }
+
+        .content-text code {
+            background: var(--surface-0);
+            border: 1px solid var(--border);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .content-text hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1.75rem 0;
+        }
+
+        .content-text table {
+            display: block;
+            overflow-x: auto;
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 1.25rem;
+            font-size: 13.5px;
+        }
+
+        .content-text th,
+        .content-text td {
+            border: 1px solid var(--border);
+            padding: 0.6rem 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .content-text th {
+            background: var(--surface-0);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .content-text tbody tr:nth-child(even) td {
+            background: rgba(0, 0, 0, 0.015);
         }
 
         .empty-state {
@@ -528,7 +635,14 @@ Provide a professional, detailed analysis suitable for executive review.`;
                 throw new Error(data.error);
             }
 
-            document.getElementById('analysisContainer').textContent = data.analysis;
+            const analysisEl = document.getElementById('analysisContainer');
+            if (window.marked) {
+                analysisEl.innerHTML = marked.parse(data.analysis);
+            } else {
+                // Fallback if the markdown renderer failed to load
+                analysisEl.textContent = data.analysis;
+                analysisEl.style.whiteSpace = 'pre-wrap';
+            }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -544,4 +658,4 @@ Provide a professional, detailed analysis suitable for executive review.`;
         }
     </script>
 </body>
-  </html>
+</html>
